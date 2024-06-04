@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC"
+      crossorigin="anonymous" />
+    <title>Document</title>
+  </head>
+  <body>
+    <section class="container pt-5">
+      <div class="row">
+        <div class="heading">
+          <h1 class="heading fw-500 text-center">Simple Weather Checker App</h1>
+        </div>
+        <div>
+          <p class="text-center fw-bold">Enter Location :</p>
+        </div>
+        <div class="d-flex justify-content-center">
+          <input class="input" type="text" placeholder="Enter Your Location" />
+          <button class="btn btn-primary" onclick="findWeather()">
+            Search
+          </button>
+        </div>
+      </div>
+    </section>
+    <section class="container pt-3">
+      <div class="row">
+        <div class="col-3"></div>
+        <div class="col-6">
+          <div class="card shadow">
+            <div class="card-body">
+              <div id="temp">
+                <h3 id="temperature">27<sup>o</sup>Celsius</h3>
+              </div>
+              <div>
+                <i id="description" class="bi bi-thermometer">Cloudy</i>
+              </div>
+              <div class="pt-2">
+                <i id="location" class="bi bi-geo-alt-fill">Dhaka</i>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-3"></div>
+      </div>
+    </section>
+
+    <script>
+      function findWeather() {
+        let location = document.getElementsByClassName("input")[0].value;
+        // console.log(location);verc
+        const geoApi =
+          "https://us1.locationiq.com/v1/search?key=pk.2030293d816b524a806e3db5a4cb198a&q=" +
+          location +
+          "&format=json";
+        // console.log(geoApi);
+        fetch(geoApi)
+          .then((response) => {
+            if (!response.ok) {
+              throw new Error("geoApi network response was not ok");
+            }
+            return response.json();
+          })
+          .then((data) => {
+            // console.log(data);
+            let lat = data[0].lat;
+            let lon = data[0].lon;
+            let location = data[0].display_name;
+            updateLocation(location);
+            const WeatherApi =
+              "https://api.weatherbit.io/v2.0/current?lat=" +
+              lat +
+              "&lon=" +
+              lon +
+              "&key=9d387c2e63dc464abccb7fc024ce7331&include=minutely";
+            fetch(WeatherApi)
+              .then((response) => {
+                if (!response.ok) {
+                  throw new Error("weatherApi network response was not ok");
+                }
+                return response.json();
+              })
+              .then((data) => {
+                // console.log(data);
+                let temp = data.data[0].temp;
+                // console.log("Temparature: ", temp);
+                let description = data.data[0].weather.description;
+                // console.log("Description: ", description);
+                updateTemp(temp);
+                updateDescription(description);
+              })
+              .catch((error) => {
+                console.error("Error: ", error);
+              });
+          })
+          .catch((error) => {
+            console.error("Error: ", error);
+          });
+      }
+      function updateTemp(newTemp) {
+        let temperatureElement = document.getElementById("temperature");
+        temperatureElement.innerHTML = `${newTemp}<sup>o</sup>Celsius`;
+      }
+      function updateLocation(newlocation) {
+        let locationElement = document.getElementById("location");
+        locationElement.innerHTML = newlocation;
+      }
+      function updateDescription(newDescription) {
+        let descriptionElement = document.getElementById("description");
+        descriptionElement.innerHTML = newDescription;
+      }
+    </script>
+  </body>
+</html>
